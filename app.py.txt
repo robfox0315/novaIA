@@ -1,0 +1,26 @@
+from flask import Flask, request
+import os
+import requests
+
+app = Flask(__name__)
+
+# Obtener variables de entorno
+BOT_TOKEN = os.getenv('BOT_TOKEN')
+CHAT_ID = os.getenv('CHAT_ID')
+
+# Ruta para enviar mensaje
+@app.route("/mensaje", methods=["POST"])
+def enviar_mensaje():
+    mensaje = request.json.get("mensaje")
+    if mensaje:
+        url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+        payload = {
+            "chat_id": CHAT_ID,
+            "text": mensaje
+        }
+        response = requests.post(url, data=payload)
+        return response.json(), response.status_code
+    return {"error": "No message provided"}, 400
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8080)
